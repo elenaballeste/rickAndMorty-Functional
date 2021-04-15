@@ -1,0 +1,27 @@
+.navItem {
+    height: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    position: relative;
+    &:first-of-type {
+        margin-right: 32px;
+    }
+    a {
+        margin: 0;
+        text-decoration: none;
+        color: #000;
+        &:hover, &:active, &.active {
+            color: #3a99ac;
+        }
+        &.active::after {
+            position: absolute;
+            content: '';
+            background: #3a99ac;
+            display: block;
+            height: 2px;
+            margin-top: 17px;
+            width: 100%;
+        }
+    }
+}
