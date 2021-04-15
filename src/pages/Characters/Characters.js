@@ -1,97 +1,96 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Character from '../../components/Character/Character';
 import Pager from '../../components/Pager/Pager';
 import Spinner from '../../UI/Spinner/Spinner';
 import classes from './Characters.module.scss';
 
-class Characters extends Component {
-    state = {
+const Characters = () => {
+    const [charactersData, setCharactersData] = useState({
         characters: [],
-        currentUrl: 'https://rickandmortyapi.com/api/character',
         nextUrl: null,
         prevUrl: null,
-        isFirstPage: false,
         currentPage: null,
-        totalPages: null,
-        loading: false
-    }
+        totalPages: null
+    })
+    const [currentUrl, setCurrentUrl] = useState('https://rickandmortyapi.com/api/character')
+    const [loading, setLoading] = useState(false)
 
-    componentDidMount () {
-        if (localStorage.page && localStorage.page !== '1') {
-            this.getCharacters(this.state.currentUrl + '?page=' + localStorage.page)
-        } else {
-            this.getCharacters(this.state.currentUrl)
-        }
-    }
-    componentWillUnmount () {
-        localStorage.setItem('page', this.state.currentPage)
-    }
+    useEffect(() => {
+        // if (localStorage.page && localStorage.page !== '1') {
+        //     getCharacters(currentUrl + '?page=' + localStorage.page)
+        // } else {
+        //     getCharacters(currentUrl)
+        // }
+        // return () => {
+        //     localStorage.setItem('page', charactersData.currentPage)
+        // }
+        getCharacters(currentUrl)
+    }, [currentUrl])
+    // }, [currentUrl, charactersData.currentPage])
+    // }, [])
 
-    getCharacters = (url) => {
-        this.setState({ loading: true })
+    const getCharacters = (url) => {
+        setLoading(true)
         axios.get(url)
             .then(response => {
-                this.setState({
-                    characters: response.data.results,
-                    nextUrl : response.data.info.next,
-                    prevUrl : response.data.info.prev,
-                    currentPage: url.includes("page=") ? url.split("page=").pop() : '1',
-                    totalPages: response.data.info.pages
+                setCharactersData((prevState) => {
+                    return {
+                        ...prevState,
+                        characters: response.data.results,
+                        nextUrl : response.data.info.next,
+                        prevUrl : response.data.info.prev,
+                        currentPage: url.includes("page=") ? url.split("page=").pop() : '1',
+                        totalPages: response.data.info.pages
+                    }
                 })
-                // localStorage.setItem('page', this.state.currentPage)
-                this.setState({ loading: false })
+                setLoading(false)
             })
             .catch(error => {
                 console.log('We could not retireve the data:', error)
-                this.setState({ loading: false })
+                setLoading(false)
             })
-
     }
-    selectedCharacterHandler = (id) => {
-        const selectedCharacter = this.state.characters.filter(item => item.id === id)[0]
+    const selectedCharacterHandler = (id) => {
+        const selectedCharacter = charactersData.characters.filter(item => item.id === id)[0]
         console.log(selectedCharacter)
         // Alternative option
         // axios.get('https://rickandmortyapi.com/api/character/' + id)
         //     .then(response => {console.log(response.data)})
         //     .catch(error => {console.log(error)})
     }
-    nextPageHandler = () => {
-        this.setState({ currentUrl: this.state.nextUrl })
-        this.getCharacters(this.state.nextUrl)
+    const nextPageHandler = () => {
+        setCurrentUrl(charactersData.nextUrl)
     }
-    prevPageHandler = () => {
-        this.setState({ currentUrl: this.state.prevUrl })
-        this.getCharacters(this.state.prevUrl)
+    const prevPageHandler = () => {
+        setCurrentUrl(charactersData.prevUrl)
     }
 
-    render () {
-        let characters = this.state.characters.map(character => {
-            return <Character
-                name={character.name}
-                img={character.image}
-                key={character.id}
-                clickedItem={() => this.selectedCharacterHandler(character.id)}/>
-        })
-        if (this.state.loading) {
-            characters = <Spinner />
-        }
-
-        return (
-            <div>
-                <Pager
-                    clickedNext = {this.nextPageHandler}
-                    clickedPrev = {this.prevPageHandler}
-                    disabledNext = {this.state.nextUrl ? false : true}
-                    disabledPrev = {this.state.prevUrl ? false : true}
-                    currentPage = {this.state.currentPage}
-                    totalPages = {this.state.totalPages}/>
-                <ul className={classes.list}>
-                    {characters}
-                </ul>
-            </div>
-        );
+    let characters = charactersData.characters.map(character => {
+        return <Character
+            name={character.name}
+            img={character.image}
+            key={character.id}
+            clickedItem={() => selectedCharacterHandler(character.id)}/>
+    })
+    if (loading) {
+        characters = <Spinner />
     }
+
+    return (
+        <div>
+            <Pager
+                clickedNext = {nextPageHandler}
+                clickedPrev = {prevPageHandler}
+                disabledNext = {charactersData.nextUrl ? false : true}
+                disabledPrev = {charactersData.prevUrl ? false : true}
+                currentPage = {charactersData.currentPage}
+                totalPages = {charactersData.totalPages}/>
+            <ul className={classes.list}>
+                {characters}
+            </ul>
+        </div>
+    )
 }
 
-export default Characters;
+export default React.memo(Characters);
