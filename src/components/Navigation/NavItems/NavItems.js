@@ -1,7 +1,7 @@
 import NavItem from './NavItem/NavItem';
 import classes from './NavItems.module.scss'
 
-function NavItems(props) {
+const NavItems = () => {
     return (
         <ul className={classes.navItems}>
             <NavItem link="/"> Home </NavItem>

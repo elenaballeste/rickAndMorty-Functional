@@ -1,6 +1,12 @@
 import classes from './Pager.module.scss';
 
-function Pager(props) {
+const Pager: React.FC<{
+    currentPage: string,
+    totalPages: number,
+    disabledPrev: boolean,
+    disabledNext:boolean,
+    clickedPrev: React.MouseEventHandler,
+    clickedNext: React.MouseEventHandler }> = (props) => {
     return (
         <div className={classes.pager}>
             <button onClick={props.clickedPrev} disabled={props.disabledPrev}>Prev</button>

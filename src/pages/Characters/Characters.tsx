@@ -3,15 +3,16 @@ import axios from 'axios';
 import Character from '../../components/Character/Character';
 import Pager from '../../components/Pager/Pager';
 import Spinner from '../../UI/Spinner/Spinner';
+import characterClass from './characterClass';
 import classes from './Characters.module.scss';
 
 const Characters = () => {
-    const [charactersData, setCharactersData] = useState({
+    const [charactersData, setCharactersData] = useState<characterClass>({
         characters: [],
-        nextUrl: null,
-        prevUrl: null,
-        currentPage: null,
-        totalPages: null
+        nextUrl: '',
+        prevUrl: '',
+        currentPage: '',
+        totalPages: 0
     })
     const [currentUrl, setCurrentUrl] = useState('https://rickandmortyapi.com/api/character')
     const [loading, setLoading] = useState(false)
@@ -30,7 +31,7 @@ const Characters = () => {
     // }, [currentUrl, charactersData.currentPage])
     // }, [])
 
-    const getCharacters = (url) => {
+    const getCharacters = (url: string) => {
         setLoading(true)
         axios.get(url)
             .then(response => {
@@ -38,9 +39,9 @@ const Characters = () => {
                     return {
                         ...prevState,
                         characters: response.data.results,
-                        nextUrl : response.data.info.next,
-                        prevUrl : response.data.info.prev,
-                        currentPage: url.includes("page=") ? url.split("page=").pop() : '1',
+                        nextUrl: response.data.info.next,
+                        prevUrl: response.data.info.prev,
+                        currentPage: url.includes("page=") ? url.split("page=").pop()! : "1",
                         totalPages: response.data.info.pages
                     }
                 })
@@ -51,7 +52,7 @@ const Characters = () => {
                 setLoading(false)
             })
     }
-    const selectedCharacterHandler = (id) => {
+    const selectedCharacterHandler = (id: number) => {
         const selectedCharacter = charactersData.characters.filter(item => item.id === id)[0]
         console.log(selectedCharacter)
         // Alternative option
@@ -66,16 +67,13 @@ const Characters = () => {
         setCurrentUrl(charactersData.prevUrl)
     }
 
-    let characters = charactersData.characters.map(character => {
+    const characters = charactersData.characters.map(character => {
         return <Character
             name={character.name}
             img={character.image}
             key={character.id}
             clickedItem={() => selectedCharacterHandler(character.id)}/>
     })
-    if (loading) {
-        characters = <Spinner />
-    }
 
     return (
         <div>
@@ -87,7 +85,7 @@ const Characters = () => {
                 currentPage = {charactersData.currentPage}
                 totalPages = {charactersData.totalPages}/>
             <ul className={classes.list}>
-                {characters}
+                {loading ? <Spinner /> : characters }
             </ul>
         </div>
     )

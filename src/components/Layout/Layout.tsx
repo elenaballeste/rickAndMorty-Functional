@@ -1,7 +1,7 @@
 import Toolbar from '../Navigation/Toolbar/Toolbar';
 import classes from './Layout.module.scss';
 
-function Layout( props ) {
+const Layout: React.FC = (props) => {
     return (
         <div>
             <Toolbar />

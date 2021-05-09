@@ -2,7 +2,7 @@ import Logo from '../../../UI/Logo/Logo';
 import NavItems from '../NavItems/NavItems';
 import classes from './Toolbar.module.scss'
 
-function Toolbar(props) {
+const Toolbar = () => {
     return (
         <header className={classes.toolbar}>
             <Logo />
